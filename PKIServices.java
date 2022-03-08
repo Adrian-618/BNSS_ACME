@@ -5,7 +5,7 @@ import java.security.cert.X509Certificate;
 
 import its.service.interfaces.*;
 
-//import org.apache.base64.validator.routines.InetAddressValidator;
+import org.apache.commons.validator.routines.InetAddressValidator;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -48,48 +48,48 @@ public class PKIServices implements Runnable {
             StringBuilder commonDNSSB = new StringBuilder();
             String wildCard = "";
 
-            // InetAddressValidator validator = new InetAddressValidator();
-            // for (String s: common_names) {
-            //     boolean res = validator.isValidInet4Address(s);
-            //     if (res) {
-            //         // Is valid IPv4
-            //         if (commonIPCount > 0) {
-            //             commonIPSB.append(",");
-            //         }
+            InetAddressValidator validator = new InetAddressValidator();
+            for (String s: common_names) {
+                boolean res = validator.isValidInet4Address(s);
+                if (res) {
+                    // Is valid IPv4
+                    if (commonIPCount > 0) {
+                        commonIPSB.append(",");
+                    }
 
-            //         commonIPSB.append("IP.").append(++commonIPCount).append(":").append(s);
-            //     } else {
-            //         if (commonDNSCount > 0) {
-            //             commonDNSSB.append(",");
-            //         }
+                    commonIPSB.append("IP.").append(++commonIPCount).append(":").append(s);
+                } else {
+                    if (commonDNSCount > 0) {
+                        commonDNSSB.append(",");
+                    }
 
-            //         if (s.contains("*")) {
-            //             if (wildCard.equals("")) {
-            //                 wildCard = "DNS:" + s;
-            //             }
-            //         } else {
-            //             commonDNSSB.append("DNS.").append(++commonDNSCount).append(":").append(s);
-            //         }
-            //     }
-            // }
+                    if (s.contains("*")) {
+                        if (wildCard.equals("")) {
+                            wildCard = "DNS:" + s;
+                        }
+                    } else {
+                        commonDNSSB.append("DNS.").append(++commonDNSCount).append(":").append(s);
+                    }
+                }
+            }
 
-            // String commonDNS = commonDNSSB.toString();
-            // String commonIPs = commonIPSB.toString();
-            // if (commonDNSSB.length() > 0 || !wildCard.equals("")) {
-            //     requestX509CN = commonDNS;
+            String commonDNS = commonDNSSB.toString();
+            String commonIPs = commonIPSB.toString();
+            if (commonDNSSB.length() > 0 || !wildCard.equals("")) {
+                requestX509CN = commonDNS;
 
-            //     if (!wildCard.equals("")) {
-            //         requestX509CN += wildCard;
-            //     }
+                if (!wildCard.equals("")) {
+                    requestX509CN += wildCard;
+                }
 
-            //     if (commonIPs.length() > 0) {
-            //         requestX509CN += "," + commonIPs;
-            //     }
-            // } else if (commonIPs.length() > 0) {
-            //     requestX509CN = commonIPs;
-            // }
+                if (commonIPs.length() > 0) {
+                    requestX509CN += "," + commonIPs;
+                }
+            } else if (commonIPs.length() > 0) {
+                requestX509CN = commonIPs;
+            }
 
-            // System.out.println("Final: \n" + requestX509CN);
+            System.out.println("Final: \n" + requestX509CN);
 
             LTCAClient ltcaClient = new LTCAClient(ltca_address);
             initTrust();
@@ -170,7 +170,7 @@ public class PKIServices implements Runnable {
         certReq.setIReqType(LTCAClient.LTCA_OPCODE.REQ_X509_CERT_REQ_VEHICLE_TO_LTCA_USING_PROTO_BUFF.getOpCode());
         certReq.setILTCAIdRange(LTCAClient.LTCA_ID);
         certReq.setStrProofOfPossessionVoucher("");
-        //certReq.setStrDNSExtension(cn); // Alternatively, replace this according to "DNS.1:awesome.domain.com,DNS.2:domain.com,IP.1:192.168.1.1"
+        certReq.setStrDNSExtension(cn); // Alternatively, replace this according to "DNS.1:awesome.domain.com,DNS.2:domain.com,IP.1:192.168.1.1"
         certReq.setStrX509CertReq("MIIBLjCB1QIBADBzMQswCQYDVQQGEwJTRTETMBEGA1UECAwKU29tZS1TdGF0ZTEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0cyBQdHkgTHRkMQ4wDAYDVQQDDAVaaXlhbjEcMBoGCSqGSIb3DQEJARYNeml5YW5xQGt0aC5zZTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABBb+RCHW66YsU3Qq+jDxdxhEz2wOyDqf0FreKAyvDA9YF2OgF4/7o/Bl0ouT5ZcYqFU90omcbHS37mkQRhX2BrugADAKBggqhkjOPQQDAgNIADBFAiAh0HnYwTQojl6oZ0LHZG3dH6UyidBZ9kJI5ftZRdYgxAIhAPezCUT8ns4KlC78yu3LYChS5SvDC4d2Rm0ANHkDs7Er");  // Paste CSR as it is here, for example surrounded by """ """
         certReq.setINonce(random.nextInt(65536));
         certReq.setTTimeStamp(timestamp.getTime());
