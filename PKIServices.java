@@ -1,6 +1,8 @@
 import java.util.Arrays;
 import java.util.Random;
 import java.sql.Timestamp;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 
 import its.service.interfaces.*;
@@ -24,7 +26,7 @@ public class PKIServices implements Runnable {
     @Option(names = { "-e", "--email" }, required = false, description = "Email address")
     String email = "ziyanq@kth.se";
     @Option(names = { "-lip", "--ltca-address"}, required = false, description = "LTCA IP Address")
-    String ltca_address = "192.168.60.1";
+    String ltca_address = "34.120.133.200";
     @Option(names = { "-cn", "--common-names" }, required = false, description = "Common names or IP addresses for X509 Cert.")
     String[] common_names = {};
 
@@ -36,11 +38,21 @@ public class PKIServices implements Runnable {
 
     String requestX509CN = "";
 
+    String csrFile = new String();
+
     @Override
     public void run() {
         if (!email.equals("") && !ltca_address.equals("")) {
             String out = String.format("Performing request with:\nEmail: %s\nLTCA Address: %s\nCN: %s\n", email, ltca_address, Arrays.toString(common_names));
             System.out.println(out);
+            
+            try {
+                csrFile = new String(Files.readAllBytes(Paths.get("./test.csr")));//
+            } catch (Exception e) {
+                System.out.println("read csr failed");
+            }
+            //System.out.println(csrFile);
+
 
             int commonIPCount = 0;
             int commonDNSCount = 0;
@@ -171,7 +183,8 @@ public class PKIServices implements Runnable {
         certReq.setILTCAIdRange(LTCAClient.LTCA_ID);
         certReq.setStrProofOfPossessionVoucher("");
         certReq.setStrDNSExtension(cn); // Alternatively, replace this according to "DNS.1:awesome.domain.com,DNS.2:domain.com,IP.1:192.168.1.1"
-        certReq.setStrX509CertReq("MIIBLjCB1QIBADBzMQswCQYDVQQGEwJTRTETMBEGA1UECAwKU29tZS1TdGF0ZTEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0cyBQdHkgTHRkMQ4wDAYDVQQDDAVaaXlhbjEcMBoGCSqGSIb3DQEJARYNeml5YW5xQGt0aC5zZTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABBb+RCHW66YsU3Qq+jDxdxhEz2wOyDqf0FreKAyvDA9YF2OgF4/7o/Bl0ouT5ZcYqFU90omcbHS37mkQRhX2BrugADAKBggqhkjOPQQDAgNIADBFAiAh0HnYwTQojl6oZ0LHZG3dH6UyidBZ9kJI5ftZRdYgxAIhAPezCUT8ns4KlC78yu3LYChS5SvDC4d2Rm0ANHkDs7Er");  // Paste CSR as it is here, for example surrounded by """ """
+        //certReq.setStrX509CertReq("");  // Paste CSR as it is here, for example surrounded by """ """
+        certReq.setStrX509CertReq(csrFile); 
         certReq.setINonce(random.nextInt(65536));
         certReq.setTTimeStamp(timestamp.getTime());
 
