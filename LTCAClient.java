@@ -1,4 +1,4 @@
-//import org.apache.commons.validator.routines.InetAddressValidator;
+import org.apache.commons.validator.routines.InetAddressValidator;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
@@ -41,10 +41,10 @@ public class LTCAClient {
 
     public LTCAClient(String hostAddr) {
         this.hostAddr = hostAddr;
-        // InetAddressValidator validator = new InetAddressValidator();
-        // if (validator.isValidInet4Address(hostAddr)) {
-        //     this.hostAddr = hostAddr;
-        // } else throw new IllegalArgumentException("Invalid IPv4 address.");
+        InetAddressValidator validator = new InetAddressValidator();
+        if (validator.isValidInet4Address(hostAddr)) {
+            this.hostAddr = hostAddr;
+        } else throw new IllegalArgumentException("Invalid IPv4 address.");
 
     }
 
