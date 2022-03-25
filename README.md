@@ -1,6 +1,6 @@
 ## BNSS README
 
-This readme is for tutorial for admins and users to use our system
+This is a tutorial for admins and users to use our system. For details of implementation, please refer to our WIKI([Home · Adrian-618/BNSS_ACME Wiki (github.com)](https://github.com/Adrian-618/BNSS_ACME/wiki)) *Not finished yet*
 
 ## For Administrators
 
